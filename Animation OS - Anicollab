@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Animation Open Source Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Inter',sans-serif;background:#f4f1e8;color:#111}
+header{background:#0f172a;color:white;padding:20px 40px;display:flex;justify-content:space-between;align-items:center}
+.logo{font-family:'Press Start 2P';font-size:12px}
+nav a{margin-left:20px;text-decoration:none;color:white;font-size:13px;cursor:pointer}
+nav a:hover{color:#22d3ee}
+.page{display:none}
+.page.active{display:block}
+.hero{padding:100px 40px;text-align:center;position:relative;color:white}
+.hero h1{font-family:'Press Start 2P';font-size:28px;margin-top:0;position:relative; z-index:2;}
+.hero p{position:relative; z-index:2;}
+.hero .btn{position:relative; z-index:2;}
+.hero::before{
+  content:'';
+  position:absolute;
+  top:0; left:0; width:100%; height:100%;
+  background-color:rgba(0,0,0,0.4);
+  z-index:1;
+}
+.btn{display:inline-block;margin-top:20px;padding:10px 18px;border:2px solid black;text-decoration:none;color:black;font-weight:600;cursor:pointer;background:white}
+.btn:hover{background:black;color:white}
+.section{padding:80px 40px}
+.section h2{font-family:'Press Start 2P';font-size:18px;margin-bottom:40px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:30px}
+.card{border:2px solid black;padding:20px;background:white}
+input,textarea,select{padding:10px;margin:8px 0;width:320px}
+.project-image{max-width:100%;border:2px solid black;margin-top:10px}
+.application{border:2px dashed black;padding:15px;margin:15px 0}
+.notification{border:2px solid #111;padding:10px;margin:10px 0;background:#fff8dc}
+.hidden{display:none}
+footer{background:#0f172a;color:white;text-align:center;padding:40px;margin-top:60px}
+</style>
+</head>
+<body>
+
+<header>
+<div class="logo">ANIMATION OS</div>
+<nav>
+<a onclick="openPage('home')">Home</a>
+<a onclick="openPage('projects')">Projects</a>
+<a onclick="openPage('upload')">Upload</a>
+<a onclick="openPage('notifications')">Notifications</a>
+<a onclick="openPage('dashboard')">Dashboard</a>
+<a onclick="openPage('login')">Login</a>
+</nav>
+</header>
+
+<!-- HOME -->
+<div id="home" class="page active">
+<section class="hero" style="
+  background-image: url('https://res.cloudinary.com/dwwo89xvm/image/upload/v1773170290/download_96_weupvy.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+">
+  <h1>OPEN ANIMATION PROJECTS</h1>
+  <p>Collaborate with animators around the world.</p>
+  <button class="btn" onclick="openPage('projects')">Explore Projects</button>
+</section>
+<section class="section">
+<h2>Featured Projects</h2>
+<div class="grid" id="projectContainer"></div>
+</section>
+</div>
+
+<!-- PROJECT LIST -->
+<div id="projects" class="page">
+<section class="section">
+<h2>Open Projects</h2>
+<div class="grid" id="projectList"></div>
+</section>
+</div>
+
+<!-- LOGIN -->
+<div id="login" class="page">
+<section class="section">
+<h2>Account Login</h2>
+<h3>Login</h3>
+<input id="loginEmail" placeholder="Email"><br>
+<input id="loginPassword" type="password" placeholder="Password"><br>
+<button class="btn" onclick="loginUser()">Login</button>
+<br><br>
+<h3>Create Account</h3>
+<input id="regEmail" placeholder="Email"><br>
+<input id="regPassword" type="password" placeholder="Password"><br>
+<button class="btn" onclick="registerUser()">Register</button>
+<p id="authStatus"></p>
+<div id="roleChoice" class="hidden">
+<h3>Welcome!</h3>
+<button class="btn" onclick="openPage('upload')">Upload Project</button>
+<button class="btn" onclick="openPage('projects')">Join Project</button>
+</div>
+</section>
+</div>
+
+<!-- UPLOAD PROJECT -->
+<div id="upload" class="page">
+<section class="section">
+<h2>Upload Animation Project</h2>
+<input id="projectTitle" placeholder="Project Title"><br>
+<textarea id="projectDesc" placeholder="Project Description"></textarea><br>
+<label>Upload Project Thumbnail (or use default):</label><br>
+<input type="file" id="projectImage" accept="image/*"><br>
+<img id="projectPreview" class="project-image hidden"><br>
+<button class="btn" onclick="submitProject()">Submit Project</button>
+<p id="uploadStatus"></p>
+</section>
+</div>
+
+<!-- PROJECT DETAIL -->
+<div id="projectDetail" class="page">
+<section class="section">
+<h2 id="detailTitle"></h2>
+<p id="detailDesc"></p>
+
+<div id="applySection">
+<h3>Apply to Join</h3>
+<input id="appName" placeholder="Name"><br>
+<select id="appSkill">
+  <option>Key Animator</option>
+  <option>Inbetweener</option>
+  <option>Coloring</option>
+  <option>Background Artist</option>
+  <option>Animation Colorist</option>
+</select><br>
+<textarea id="motivation" placeholder="Why do you want to join?"></textarea><br>
+<label>Upload Portfolio File (PDF/Image):</label><br>
+<input type="file" id="appFile"><br>
+<button class="btn" onclick="submitApplication()">Submit Application</button>
+<p id="applyStatus"></p>
+</div>
+
+<div id="projectBriefSection" class="hidden">
+<h3>Project Brief</h3>
+<label>Upload Project Brief (PDF/Image):</label><br>
+<input type="file" id="projectBriefFile"><br>
+<button class="btn" onclick="uploadProjectBrief()">Upload Brief</button>
+<div id="briefFileList"></div>
+</div>
+
+</section>
+</div>
+
+<!-- NOTIFICATIONS -->
+<div id="notifications" class="page">
+<section class="section">
+<h2>Notifications</h2>
+<div id="notificationList"></div>
+</section>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard" class="page">
+<section class="section">
+<h2>Project Applications (Pending Only)</h2>
+<div id="applicationList"></div>
+</section>
+</div>
+
+<footer>
+<p>Animation Open Source Platform</p>
+</footer>
+
+<script>
+// --- DATA & STORAGE ---
+let user = localStorage.getItem("user")
+let currentProject = null
+let users = JSON.parse(localStorage.getItem("users") || "[]")
+let projects = JSON.parse(localStorage.getItem("projects") || "[]")
+let applications = JSON.parse(localStorage.getItem("applications") || "[]")
+let notifications = JSON.parse(localStorage.getItem("notifications") || "[]")
+
+function save(key,data){ localStorage.setItem(key,JSON.stringify(data)) }
+
+if(user){
+ document.getElementById("authStatus").innerText="Logged in as " + user
+ document.getElementById("roleChoice").classList.remove("hidden")
+}
+
+// --- REGISTER & LOGIN ---
+function registerUser(){
+ let email=document.getElementById("regEmail").value
+ let pass=document.getElementById("regPassword").value
+ if(!email || !pass){ document.getElementById("authStatus").innerText="Fill all fields"; return }
+ if(users.find(u=>u.email===email)){ document.getElementById("authStatus").innerText="Account already exists"; return }
+ users.push({email:email,password:pass})
+ save("users",users)
+ document.getElementById("authStatus").innerText="Account created. Now login."
+}
+
+function loginUser(){
+ let email=document.getElementById("loginEmail").value
+ let pass=document.getElementById("loginPassword").value
+ let account=users.find(u=>u.email===email && u.password===pass)
+ if(!account){ document.getElementById("authStatus").innerText="Invalid login"; return }
+ user=email
+ localStorage.setItem("user",user)
+ document.getElementById("authStatus").innerText="Logged in as " + user
+ document.getElementById("roleChoice").classList.remove("hidden")
+}
+
+// --- NAVIGATION ---
+function openPage(id){
+ document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'))
+ document.getElementById(id).classList.add('active')
+ renderProjects()
+ renderApplications()
+ renderNotifications()
+ if(id==="projectDetail") checkAccepted()
+}
+
+// --- PROJECT UPLOAD ---
+const projectImageInput = document.getElementById("projectImage")
+const projectPreview = document.getElementById("projectPreview")
+projectImageInput.addEventListener("change", function() {
+  const file = this.files[0]
+  if(file){
+    const reader = new FileReader()
+    reader.onload = function(e){
+      projectPreview.src = e.target.result
+      projectPreview.classList.remove("hidden")
+    }
+    reader.readAsDataURL(file)
+  }
+})
+
+function submitProject(){
+ if(!user){ document.getElementById("uploadStatus").innerText="Login first"; return }
+ let title=document.getElementById("projectTitle").value
+ let desc=document.getElementById("projectDesc").value
+ let imgFile = document.getElementById("projectImage").files[0]
+ if(!title || !desc){ document.getElementById("uploadStatus").innerText="Fill all fields"; return }
+
+ if(imgFile){
+   const reader = new FileReader()
+   reader.onload = function(e){
+     saveProject(title, desc, e.target.result)
+   }
+   reader.readAsDataURL(imgFile)
+ } else {
+   saveProject(title, desc, "https://res.cloudinary.com/dwwo89xvm/image/upload/v1773170290/download_96_weupvy.jpg")
+ }
+}
+
+function saveProject(title, desc, imgData){
+ projects.push({title:title, desc:desc, owner:user, image: imgData})
+ save("projects",projects)
+ document.getElementById("uploadStatus").innerText="Project uploaded"
+ renderProjects()
+}
+
+// --- RENDER PROJECTS ---
+function renderProjects(){
+ let containers=[document.getElementById("projectContainer"),document.getElementById("projectList")]
+ containers.forEach(container=>{
+ if(!container) return
+ container.innerHTML=""
+ projects.forEach((p,i)=>{
+ let card=document.createElement("div")
+ card.className="card"
+ card.innerHTML=`<h3>${p.title}</h3>`
+ if(p.image){ card.innerHTML += `<img src="${p.image}" class="project-image">` }
+ card.innerHTML += `<p>${p.desc}</p><button class="btn" onclick="openProject(${i})">View Project</button>`
+ container.appendChild(card)
+ })
+ })
+}
+
+// --- OPEN PROJECT DETAIL ---
+function openProject(i){
+ currentProject=i
+ let p=projects[i]
+ document.getElementById("detailTitle").innerText=p.title
+ document.getElementById("detailDesc").innerText=p.desc
+ openPage("projectDetail")
+ checkAccepted()
+}
+
+// --- APPLY PROJECT ---
+function submitApplication(){
+ if(!user){ document.getElementById("applyStatus").innerText="Login first"; return }
+ let name = document.getElementById("appName").value
+ let skill = document.getElementById("appSkill").value
+ let motivation = document.getElementById("motivation").value
+ let fileInput = document.getElementById("appFile")
+ if(!name){ document.getElementById("applyStatus").innerText="Fill required fields"; return }
+
+ if(fileInput.files.length > 0){
+   const reader = new FileReader()
+   reader.onload = function(e){
+     saveApplication(name, skill, motivation, e.target.result, fileInput.files[0].name)
+   }
+   reader.readAsDataURL(fileInput.files[0])
+ } else {
+   saveApplication(name, skill, motivation, "", "")
+ }
+}
+
+function saveApplication(name, skill, motivation, fileData, fileName){
+ applications.push({
+   project:currentProject,
+   name:name,
+   skill:skill,
+   motivation:motivation,
+   email:user,
+   status:"pending",
+   fileData:fileData,
+   fileName:fileName
+ })
+ save("applications",applications)
+ let project=projects[currentProject]
+ notifications.push({
+   user:project.owner,
+   text:name+" applied to your project '"+project.title+"'",
+   time:new Date().toLocaleString()
+ })
+ save("notifications",notifications)
+ document.getElementById("applyStatus").innerText="Application submitted"
+}
+
+// --- CHECK IF USER ACCEPTED & SHOW BRIEF ---
+function checkAccepted(){
+ if(!user || currentProject===null) return
+ let project = projects[currentProject]
+ if(project.acceptedUsers && project.acceptedUsers.includes(user)){
+   document.getElementById("projectBriefSection").classList.remove("hidden")
+   document.getElementById("applySection").classList.add("hidden")
+   renderBriefFiles()
+ } else {
+   document.getElementById("projectBriefSection").classList.add("hidden")
+   document.getElementById("applySection").classList.remove("hidden")
+ }
+}
+
+// --- UPLOAD PROJECT BRIEF ---
+function uploadProjectBrief(){
+ const input = document.getElementById("projectBriefFile")
+ if(input.files.length === 0) return
+ const file = input.files[0]
+ const reader = new FileReader()
+ reader.onload = function(e){
+   if(!projects[currentProject].briefFiles) projects[currentProject].briefFiles = []
+   projects[currentProject].briefFiles.push({data:e.target.result, name:file.name})
+   save("projects",projects)
+
+   let project = projects[currentProject]
+   if(project.acceptedUsers){
+     project.acceptedUsers.forEach(email=>{
+       notifications.push({
+         user: email,
+         text: "New project brief uploaded for '"+project.title+"'",
+         time: new Date().toLocaleString()
+       })
+     })
+     save("notifications",notifications)
+   }
+
+   renderBriefFiles()
+   renderNotifications()
+ }
+ reader.readAsDataURL(file)
+}
+
+function renderBriefFiles(){
+ const container = document.getElementById("briefFileList")
+ container.innerHTML = ""
+ let project = projects[currentProject]
+ if(!project.briefFiles) return
+
+ project.briefFiles.forEach(f=>{
+   const link = document.createElement("a")
+   link.href = "#"
+   link.innerText = f.name
+   link.onclick = function(){ openFileFromData(f.data) }
+   container.appendChild(link)
+   container.appendChild(document.createElement("br"))
+ })
+}
+
+// --- OPEN FILE USING BLOB ---
+function openFileFromData(dataURL){
+ const byteString = atob(dataURL.split(',')[1])
+ const mimeString = dataURL.split(',')[0].split(':')[1].split(';')[0]
+ const ab = new ArrayBuffer(byteString.length)
+ const ia = new Uint8Array(ab)
+ for(let i=0;i<byteString.length;i++){ ia[i]=byteString.charCodeAt(i) }
+ const blob = new Blob([ab], {type: mimeString})
+ const url = URL.createObjectURL(blob)
+ window.open(url, '_blank')
+}
+
+// --- RENDER APPLICATIONS (Dashboard Pending Only) ---
+function renderApplications(){
+ let container=document.getElementById("applicationList")
+ if(!container) return
+ container.innerHTML=""
+ applications.forEach((a,i)=>{
+ let p=projects[a.project]
+ if(!p) return
+ if(p.owner!==user) return
+ if(a.status !== "pending") return
+ let div=document.createElement("div")
+ div.className="application"
+ div.innerHTML=`<strong>${a.name}</strong><br>Skill: ${a.skill}<br>Email: ${a.email}<br>Motivation: ${a.motivation}<br>Status: ${a.status}`
+ if(a.fileData){ 
+   const fileLink = document.createElement("a")
+   fileLink.href="#"
+   fileLink.innerText=a.fileName
+   fileLink.onclick=()=>openFileFromData(a.fileData)
+   div.appendChild(document.createElement("br"))
+   div.appendChild(fileLink)
+ }
+ div.innerHTML += `<br><button onclick="acceptApp(${i})">Accept</button> <button onclick="rejectApp(${i})">Reject</button>`
+ container.appendChild(div)
+ })
+}
+
+// --- ACCEPT / REJECT ---
+function acceptApp(i){
+ applications[i].status="accepted"
+ let app = applications[i]
+ let project = projects[app.project]
+ if(!project.acceptedUsers) project.acceptedUsers = []
+ if(!project.acceptedUsers.includes(app.email)) project.acceptedUsers.push(app.email)
+ save("applications",applications)
+ save("projects",projects)
+
+ notifications.push({
+   user: app.email,
+   text: "Your application for '"+project.title+"' has been accepted!",
+   time: new Date().toLocaleString()
+ })
+ save("notifications",notifications)
+
+ renderApplications()
+ renderNotifications()
+}
+
+function rejectApp(i){
+ applications[i].status="rejected"
+ let app = applications[i]
+ let project = projects[app.project]
+
+ notifications.push({
+   user: app.email,
+   text: "Your application for '"+project.title+"' has been rejected.",
+   time: new Date().toLocaleString()
+ })
+ save("applications",applications)
+ save("notifications",notifications)
+
+ renderApplications()
+ renderNotifications()
+}
+
+// --- RENDER NOTIFICATIONS ---
+function renderNotifications(){
+ let container=document.getElementById("notificationList")
+ if(!container) return
+ container.innerHTML=""
+ notifications.forEach(n=>{
+ if(n.user!==user) return
+ let div=document.createElement("div")
+ div.className="notification"
+ div.innerHTML=`${n.text}<br><small>${n.time}</small>`
+ container.appendChild(div)
+ })
+}
+
+// --- INITIAL RENDER ---
+renderProjects()
+renderApplications()
+renderNotifications()
+</script>
+</body>
+</html>
